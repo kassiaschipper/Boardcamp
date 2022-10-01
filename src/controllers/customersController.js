@@ -25,6 +25,31 @@ const { cpf } = req.query;
     }
 
 }
+
+async function listCustomersById (req, res){
+const id = req.params.id;
+
+try {
+    const cutomersIds = (await connection.query('SELECT * FROM customers;')).rows; 
+    const isValid = cutomersIds.find(elemet => elemet.id === id);
+    
+    if(isValid !== undefined){
+        return res.sendStatus(404);
+    }
+
+    const customerById = (await connection.query(`SELECT * FROM customers WHERE customers.id=$1;`,[id])).rows;
+    
+    return res.send(customerById);
+} catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+}
+
+
+}
+
+
+
 async function insertCustomer (req, res){
 const { name, phone, cpf, birthday } = req.body;
 
@@ -51,4 +76,4 @@ try {
 
 }
 
-export { insertCustomer, listCustomers }
+export { insertCustomer, listCustomers, listCustomersById }
