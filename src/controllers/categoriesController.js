@@ -1,4 +1,3 @@
-//import pg from "pg";
 import connection from "../db/db.js";
 
 async function listCategories(req, res){
