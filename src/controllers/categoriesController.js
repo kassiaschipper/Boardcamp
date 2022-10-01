@@ -16,10 +16,17 @@ async function listCategories(req, res){
 
 async function insertCategories(req, res){
 const { name }  = req.body;
-console.log(name)
+
     try {
-        await connection.query('INSERT INTO categories (name) VALUES ($1)', [name]);
-        return res.sendStatus(201); 
+      const getNames = (await connection.query('SELECT name FROM categories;')).rows;
+      const findName = getNames.find(element => element.name === name);
+           
+      if(findName !== undefined){
+        return res.sendStatus(409);
+      }
+      
+      await connection.query('INSERT INTO categories (name) VALUES ($1)', [name]);
+      return res.sendStatus(201); 
 
     } catch (error) {
         console.log(error);
