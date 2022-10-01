@@ -26,10 +26,10 @@ async function listGames(req, res) {
 
 async function insertGame(req, res) {
   const { name, image, stockTotal, categoryId, pricePerDay } = req.body;
-  console.log(req.body.categoryId);
+  
   try {
     //Procura por Ids válidos
-    const selectIds = (await connection.query("SELECT id FROM categories"))
+    const selectIds = (await connection.query("SELECT id FROM categories;"))
       .rows;
     const findCatedory = selectIds.find(
       (categories) => categories.id === categoryId
@@ -45,7 +45,7 @@ async function insertGame(req, res) {
     }
     //Insere o game na tabela
     const queryGames = await connection.query(
-      'INSERT INTO games (name, image, "stockTotal", "categoryId", "pricePerDay") VALUES ($1, $2, $3, $4, $5)',
+      'INSERT INTO games (name, image, "stockTotal", "categoryId", "pricePerDay") VALUES ($1, $2, $3, $4, $5);',
       [name, image, stockTotal, categoryId, pricePerDay]
     );
     return res.sendStatus(201);

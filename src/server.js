@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import categoriesRoute from "./routes/categoriesRoute.js"
 import gamesRoute from "./routes/gamesRoute.js"
+import customersRoute from "./routes/customersRoute.js"
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ server.use(express.json());
 
 server.use(categoriesRoute);
 server.use(gamesRoute);
+server.use(customersRoute);
 
 server.get("/status", (req, res) => {
     return res.send("Ok");
