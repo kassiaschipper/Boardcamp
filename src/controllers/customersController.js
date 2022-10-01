@@ -1,6 +1,30 @@
 import connection from "../db/db.js";
 
+async function listCustomers (req, res){
+const { cpf } = req.query;
 
+    try {
+
+        if (cpf) {
+            const queryCustomers = (
+              await connection.query(
+                `SELECT * FROM customers WHERE customers.cpf ILIKE '${cpf}%' ;`
+              )
+            ).rows;
+            return res.send(queryCustomers);
+          }
+        const queryCustomers = (
+            await connection.query(
+              'SELECT * FROM customers;'
+            )
+          ).rows;
+          return res.send(queryCustomers);
+    } catch (error) {
+        console.log(error);
+        return res.send(500);
+    }
+
+}
 async function insertCustomer (req, res){
 const { name, phone, cpf, birthday } = req.body;
 
@@ -27,4 +51,4 @@ try {
 
 }
 
-export { insertCustomer }
+export { insertCustomer, listCustomers }
