@@ -1,4 +1,6 @@
 import connection from "../db/db.js";
+import dayjs from "dayjs";
+
 
 async function insertRentals (req, res){
 const {customerId, gameId, daysRented} = req.body;
@@ -79,4 +81,57 @@ try {
 }
 }
 
-export { insertRentals,  listRentals}
+async function finalizingRental (req, res){
+    const { id } = req.params;
+    const currentDate = dayjs().format("YYYY-MM-DD");
+  
+    try {
+             
+        const findRental = (await connection.query('SELECT * FROM rentals WHERE id= $1;',[id])).rows;
+        if(findRental.length === 0 ){
+            return res.sendStatus(404);
+        }
+
+        const findFinalizedRental =(await connection.query('SELECT "returnDate" FROM rentals WHERE id =$1;',[id])).rows[0].returnDate;
+          
+        if(findFinalizedRental !== null){
+            return res.sendStatus(400);
+        }
+        
+        const updateRental = await connection.query('UPDATE rentals SET "returnDate"=$1 WHERE id=$2;',[currentDate, id]);
+        
+        const checkDaysRented = (await connection.query('SELECT "daysRented" FROM rentals WHERE id= $1;',[id])).rows[0].daysRented;
+        const checkRentDate = (await connection.query('SELECT "rentDate" FROM rentals WHERE id= $1;',[id])).rows[0].rentDate;
+        if(checkRentDate !== null){
+
+        }
+        const returnDate = addDays(checkRentDate,checkDaysRented)
+        
+        const dayjsCurrentDate = dayjs(currentDate);
+        const dayjsDiaderetorno = dayjs(returnDate)
+       
+        const differenceBetweenDates= dayjsCurrentDate.diff(dayjsDiaderetorno, 'day');
+        
+        if( differenceBetweenDates > 0){
+            const gamePrice = (await connection.query('SELECT "originalPrice" FROM rentals WHERE id=$1;', [id])).rows[0].originalPrice;
+            const fee = gamePrice*differenceBetweenDates;
+            const updateRentalFee = await connection.query('UPDATE rentals SET "delayFee"=$1 WHERE id=$2;',[fee, id]);
+            
+            return res.sendStatus(200)
+        }
+       
+        return res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(500);
+    }
+}
+
+function addDays(date, days) {
+    var result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+
+export { insertRentals,  listRentals, finalizingRental}
