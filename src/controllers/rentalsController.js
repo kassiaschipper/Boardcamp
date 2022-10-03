@@ -34,8 +34,49 @@ try {
     console.log(error);
     return res.sendStatus(500);
 }
-
-
 }
 
-export { insertRentals }
+async function listRentals(req, res){
+const { customerId } = req.query;
+const { gameId } = req.query;
+
+try {
+    
+    const findCustomerId = (await connection.query('SELECT * FROM rentals WHERE "customerId" = $1;',[customerId])).rows;  
+    const findGameId  = (await connection.query('SELECT * FROM rentals WHERE "gameId" = $1;',[gameId])).rows;  
+    const rentalsQuery = (await connection.query('SELECT * FROM rentals;')).rows;
+    const customersQuery = (await connection.query('SELECT * FROM customers')).rows;
+    const gamesQuery = (await connection.query('SELECT * FROM games;')).rows;
+    
+    if(findCustomerId.length > 0 ){
+        const rentals = findCustomerId.map((rentals) => ({
+            ...rentals,
+            customer: customersQuery.find((element) => element.id === rentals.customerId),
+            game: gamesQuery.find((element) => element.id === rentals.gameId)
+        }));
+        return res.send(rentals);
+    }
+    
+    if(findGameId.length > 0 ){
+        const rentals = findGameId.map((rentals) => ({
+            ...rentals,
+            customer: customersQuery.find((element) => element.id === rentals.customerId),
+            game: gamesQuery.find((element) => element.id === rentals.gameId)
+        }));
+        return res.send(rentals);
+    }
+    
+    const rentals = rentalsQuery.map((rentals) => ({
+        ...rentals,
+        customer: customersQuery.find((element) => element.id === rentals.customerId),
+        game: gamesQuery.find((element) => element.id === rentals.gameId)
+    })); 
+    
+    return res.send(rentals) ;
+} catch (error) {
+        console.log(error);
+        return res.sendStatus(500);
+}
+}
+
+export { insertRentals,  listRentals}
