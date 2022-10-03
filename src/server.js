@@ -4,6 +4,7 @@ import express from "express";
 import categoriesRoute from "./routes/categoriesRoute.js"
 import gamesRoute from "./routes/gamesRoute.js"
 import customersRoute from "./routes/customersRoute.js"
+import rentalsRoute from "./routes/rentalsRoute.js"
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ server.use(express.json());
 server.use(categoriesRoute);
 server.use(gamesRoute);
 server.use(customersRoute);
+server.use(rentalsRoute);
 
 server.get("/status", (req, res) => {
     return res.send("Ok");
