@@ -127,6 +127,31 @@ async function finalizingRental (req, res){
     }
 }
 
+async function deleteRental (req, res){
+    const { id } = req.params;
+    
+    try {
+        const findRental = (await connection.query('SELECT * FROM rentals WHERE id=$1;',[id])).rows;
+        if(findRental.length === 0){
+            return res.sendStatus(404);
+        }
+
+        const findFinalizedRental =(await connection.query('SELECT "returnDate" FROM rentals WHERE id =$1;',[id])).rows[0].returnDate;
+        if(findFinalizedRental === null){
+            return res.sendStatus(400);
+        }
+        
+        const deleteRentals = await connection.query('DELETE FROM rentalS WHERE id=$1;',[id]);
+        return res.sendStatus(200);
+
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(500);
+    }
+
+}
+
+
 function addDays(date, days) {
     var result = new Date(date);
     result.setDate(result.getDate() + days);
@@ -134,4 +159,4 @@ function addDays(date, days) {
   }
 
 
-export { insertRentals,  listRentals, finalizingRental}
+export { insertRentals,  listRentals, finalizingRental, deleteRental }
